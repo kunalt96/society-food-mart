@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SocietyMart Admin Center</title>
+  <!-- Bootstrap 5 CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+  <style>
+    :root {
+      --primary-color: #e75480;
+      --primary-dark: #d13d6a;
+      --sidebar-bg: #1A1A1A;
+      --sidebar-hover: #2d2d2d;
+    }
+    body {
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f7f9fc;
+      overflow-x: hidden;
+    }
+    /* Sidebar */
+    .sidebar {
+      min-height: 100vh;
+      width: 260px;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      background-color: var(--sidebar-bg);
+      color: white;
+      transition: all 0.3s ease;
+      box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+    }
+    .sidebar-brand {
+      padding: 24px 20px;
+      border-bottom: 1px solid #2d2d2d;
+      font-weight: 700;
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.25rem;
+    }
+    .sidebar-brand i {
+      color: var(--primary-color);
+      font-size: 1.5rem;
+    }
+    .nav-menu {
+      padding: 20px 0;
+    }
+    .nav-item-custom {
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #999999;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      border-left: 4px solid transparent;
+    }
+    .nav-item-custom:hover {
+      color: white;
+      background-color: var(--sidebar-hover);
+    }
+    .nav-item-custom.active {
+      color: white;
+      background-color: rgba(231, 84, 128, 0.15);
+      border-left: 4px solid var(--primary-color);
+    }
+    .nav-item-custom.active i {
+      color: var(--primary-color);
+    }
+    .nav-item-custom i {
+      font-size: 1.2rem;
+      transition: color 0.2s ease;
+    }
+    /* Main Content */
+    .main-wrapper {
+      margin-left: 260px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .top-navbar {
+      background-color: white;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+    .content-body {
+      padding: 30px;
+      flex: 1;
+    }
+    /* Premium Cards */
+    .premium-card {
+      border: none;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+      background-color: white;
+      margin-bottom: 24px;
+    }
+    .btn-primary-custom {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .btn-primary-custom:hover {
+      background-color: var(--primary-dark);
+      color: white;
+      transform: translateY(-1px);
+    }
+    .badge-pink {
+      background-color: rgba(231, 84, 128, 0.1);
+      color: var(--primary-color);
+      border: 1px solid rgba(231, 84, 128, 0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <a href="/dashboard" class="sidebar-brand">
+      <i class="bi bi-shield-fill"></i>
+      <span>SOCIETY MART</span>
+    </a>
+    
+    <div class="nav-menu">
+      <a href="/dashboard" class="nav-item-custom <%= page === 'dashboard' ? 'active' : '' %>">
+        <i class="bi bi-grid-1x2-fill"></i>
+        <span>Overview</span>
+      </a>
+      
+      <a href="/societies" class="nav-item-custom <%= page === 'societies' ? 'active' : '' %>">
+        <i class="bi bi-buildings-fill"></i>
+        <span>Societies</span>
+      </a>
+      
+      <a href="/kitchens" class="nav-item-custom <%= page === 'kitchens' ? 'active' : '' %>">
+        <i class="bi bi-egg-fried"></i>
+        <span>Home Kitchens</span>
+      </a>
+      
+      <a href="/dishes" class="nav-item-custom <%= page === 'dishes' ? 'active' : '' %>">
+        <i class="bi bi-journal-album"></i>
+        <span>Food Directory</span>
+      </a>
+      
+      <a href="/users" class="nav-item-custom <%= page === 'users' ? 'active' : '' %>">
+        <i class="bi bi-people-fill"></i>
+        <span>User Directory</span>
+      </a>
+      
+      <div style="border-top: 1px solid #2d2d2d; margin: 20px 0;"></div>
+      
+      <a href="/logout" class="nav-item-custom text-danger">
+        <i class="bi bi-box-arrow-right"></i>
+        <span>Sign Out</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Main Wrapper -->
+  <div class="main-wrapper">
+    <!-- Top Navbar -->
+    <div class="top-navbar">
+      <div class="fw-semibold text-muted">
+        Welcome, <span class="text-dark fw-bold">System Administrator</span>
+      </div>
+      <div>
+        <span class="badge badge-pink px-3 py-2 rounded-pill small">
+          <i class="bi bi-circle-fill text-success me-1 small"></i> Live Database Connected
+        </span>
+      </div>
+    </div>
+    
+    <!-- Content Body -->
+    <div class="content-body">

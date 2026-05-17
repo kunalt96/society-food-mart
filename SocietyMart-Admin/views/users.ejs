@@ -1,0 +1,88 @@
+<%- include('partials/header') %>
+
+<div class="row align-items-center mb-4">
+  <div class="col">
+    <h2 class="h3 mb-0 text-gray-800 fw-bold">User Directory</h2>
+    <p class="text-muted mb-0">Audit, manage, and regulate all registered buyers and sellers across all housing complexes</p>
+  </div>
+</div>
+
+<% if (locals.successMsg) { %>
+  <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
+    <i class="bi bi-check-circle-fill me-2"></i>
+    <div><%= successMsg %></div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% } %>
+
+<div class="card premium-card p-4">
+  <h5 class="fw-bold mb-3">SocietyMart Registered Members</h5>
+  
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th scope="col" style="border-radius: 8px 0 0 8px;">USER DETAILS</th>
+          <th scope="col">PHONE</th>
+          <th scope="col">EMAIL</th>
+          <th scope="col">ROLE</th>
+          <th scope="col">SOCIETY</th>
+          <th scope="col">FLAT</th>
+          <th scope="col" class="text-center" style="border-radius: 0 8px 8px 0; width: 120px;">ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (users && users.length > 0) { %>
+          <% users.forEach(function(member) { %>
+            <tr>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="rounded bg-light p-2 text-center" style="width: 40px; height: 40px; color: #0dcaf0;">
+                    <i class="bi bi-person-fill"></i>
+                  </div>
+                  <div>
+                    <div class="fw-bold text-dark"><%= member.full_name || 'Incomplete Setup' %></div>
+                    <span class="text-muted small">UID: <%= member.id %></span>
+                  </div>
+                </div>
+              </td>
+              <td><a href="tel:<%= member.phone %>" class="text-decoration-none text-muted small"><%= member.phone %></a></td>
+              <td><span class="text-muted small"><%= member.email || 'N/A' %></span></td>
+              <td>
+                <% if (member.role === 'seller') { %>
+                  <span class="badge bg-success-subtle text-success py-1 px-3 rounded-pill small">Seller / Chef</span>
+                <% } else if (member.role === 'buyer') { %>
+                  <span class="badge bg-info-subtle text-info py-1 px-3 rounded-pill small">Buyer</span>
+                <% } else { %>
+                  <span class="badge bg-secondary-subtle text-secondary py-1 px-3 rounded-pill small">Pending / Empty</span>
+                <% } %>
+              </td>
+              <td>
+                <span class="badge badge-pink py-2 px-3 rounded-pill small">
+                  <%= member.societyName || 'N/A' %>
+                </span>
+              </td>
+              <td><code><%= member.flat_number || 'N/A' %></code></td>
+              <td class="text-center">
+                <form action="/users/delete/<%= member.id %>" method="POST" onsubmit="return confirm('Are you sure you want to permanently delete this user from the marketplace? This action is irreversible!');">
+                  <button type="submit" class="btn btn-sm btn-outline-danger border-0 rounded-circle" style="width: 32px; height: 32px; padding: 0;">
+                    <i class="bi bi-trash3-fill"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        <% } else { %>
+          <tr>
+            <td colspan="7" class="text-center py-5 text-muted">
+              <i class="bi bi-people text-muted d-block fs-1 mb-2" style="opacity: 0.3;"></i>
+              No registered members found.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

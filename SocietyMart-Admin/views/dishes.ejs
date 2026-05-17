@@ -1,0 +1,87 @@
+<%- include('partials/header') %>
+
+<div class="row align-items-center mb-4">
+  <div class="col">
+    <h2 class="h3 mb-0 text-gray-800 fw-bold">Manage Food Directory</h2>
+    <p class="text-muted mb-0">Audit and moderate individual food items and active chef menu listings</p>
+  </div>
+</div>
+
+<% if (locals.successMsg) { %>
+  <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
+    <i class="bi bi-check-circle-fill me-2"></i>
+    <div><%= successMsg %></div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% } %>
+
+<div class="card premium-card p-4">
+  <h5 class="fw-bold mb-3">Marketplace Dish Registry</h5>
+  
+  <div class="table-responsive">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th scope="col" style="border-radius: 8px 0 0 8px;">DISH / ITEM DETAILS</th>
+          <th scope="col">CHEF / KITCHEN</th>
+          <th scope="col">PRICE</th>
+          <th scope="col">DESCRIPTION</th>
+          <th scope="col">AVAILABILITY</th>
+          <th scope="col" class="text-center" style="border-radius: 0 8px 8px 0; width: 120px;">ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (dishes && dishes.length > 0) { %>
+          <% dishes.forEach(function(dish) { %>
+            <tr>
+              <td>
+                <div class="d-flex align-items-center gap-3">
+                  <% if (dish.image_url) { %>
+                    <img src="<%= dish.image_url %>" alt="<%= dish.name %>" class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                  <% } else { %>
+                    <div class="rounded bg-light text-center d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; color: #ffc107;">
+                      <i class="bi bi-image" style="font-size: 1.5rem;"></i>
+                    </div>
+                  <% } %>
+                  <div>
+                    <div class="fw-bold text-dark"><%= dish.name %></div>
+                    <span class="text-muted small">Category: <%= dish.category || 'Meals' %></span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="fw-semibold text-dark"><%= dish.chefName || 'N/A' %></div>
+                <span class="text-muted small">ID: <%= dish.kitchen_id %></span>
+              </td>
+              <td><span class="fw-bold text-dark">₹<%= dish.price %></span></td>
+              <td><span class="text-muted small d-inline-block text-truncate" style="max-width: 250px;"><%= dish.description || 'No description provided.' %></span></td>
+              <td>
+                <% if (dish.is_available) { %>
+                  <span class="badge bg-success-subtle text-success py-1 px-3 rounded-pill small">Available</span>
+                <% } else { %>
+                  <span class="badge bg-danger-subtle text-danger py-1 px-3 rounded-pill small">Sold Out</span>
+                <% } %>
+              </td>
+              <td class="text-center">
+                <form action="/dishes/delete/<%= dish.id %>" method="POST" onsubmit="return confirm('Are you sure you want to permanently remove this food listing from the marketplace?');">
+                  <button type="submit" class="btn btn-sm btn-outline-danger border-0 rounded-circle" style="width: 32px; height: 32px; padding: 0;">
+                    <i class="bi bi-trash3-fill"></i>
+                  </button>
+                </form>
+              </td>
+            </tr>
+          <% }); %>
+        <% } else { %>
+          <tr>
+            <td colspan="6" class="text-center py-5 text-muted">
+              <i class="bi bi-journal-album text-muted d-block fs-1 mb-2" style="opacity: 0.3;"></i>
+              No active food dishes/listings in the database.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

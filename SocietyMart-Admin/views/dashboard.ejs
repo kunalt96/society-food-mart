@@ -1,0 +1,153 @@
+<%- include('partials/header') %>
+
+<div class="row align-items-center mb-4">
+  <div class="col">
+    <h2 class="h3 mb-0 text-gray-800 fw-bold">Overview Dashboard</h2>
+    <p class="text-muted mb-0">Real-time statistics of the SocietyMart ecosystem</p>
+  </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row">
+  <!-- Societies Card -->
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card premium-card border-start border-4 border-primary h-100 py-2" style="border-left-color: var(--primary-color) !important;">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col me-2">
+            <div class="text-xs font-weight-bold text-uppercase text-muted mb-1 small fw-bold">SOCIETIES</div>
+            <div class="h2 mb-0 font-weight-bold text-dark"><%= stats.societiesCount %></div>
+          </div>
+          <div class="col-auto">
+            <i class="bi bi-buildings-fill text-muted" style="font-size: 2.2rem; opacity: 0.5;"></i>
+          </div>
+        </div>
+        <div class="mt-3">
+          <a href="/societies" class="btn btn-sm btn-outline-secondary rounded-pill border-0 px-0 small text-decoration-none">Manage Societies <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kitchens Card -->
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card premium-card border-start border-4 border-success h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col me-2">
+            <div class="text-xs font-weight-bold text-uppercase text-muted mb-1 small fw-bold">ACTIVE KITCHENS</div>
+            <div class="h2 mb-0 font-weight-bold text-dark"><%= stats.kitchensCount %></div>
+          </div>
+          <div class="col-auto">
+            <i class="bi bi-egg-fried text-muted" style="font-size: 2.2rem; opacity: 0.5;"></i>
+          </div>
+        </div>
+        <div class="mt-3">
+          <a href="/kitchens" class="btn btn-sm btn-outline-secondary rounded-pill border-0 px-0 small text-decoration-none">Manage Kitchens <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dishes Card -->
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card premium-card border-start border-4 border-warning h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col me-2">
+            <div class="text-xs font-weight-bold text-uppercase text-muted mb-1 small fw-bold">TOTAL DISHES</div>
+            <div class="h2 mb-0 font-weight-bold text-dark"><%= stats.dishesCount %></div>
+          </div>
+          <div class="col-auto">
+            <i class="bi bi-journal-album text-muted" style="font-size: 2.2rem; opacity: 0.5;"></i>
+          </div>
+        </div>
+        <div class="mt-3">
+          <a href="/dishes" class="btn btn-sm btn-outline-secondary rounded-pill border-0 px-0 small text-decoration-none">Manage Food <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users Card -->
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card premium-card border-start border-4 border-info h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col me-2">
+            <div class="text-xs font-weight-bold text-uppercase text-muted mb-1 small fw-bold">REGISTERED USERS</div>
+            <div class="h2 mb-0 font-weight-bold text-dark"><%= stats.usersCount %></div>
+          </div>
+          <div class="col-auto">
+            <i class="bi bi-people-fill text-muted" style="font-size: 2.2rem; opacity: 0.5;"></i>
+          </div>
+        </div>
+        <div class="mt-3">
+          <a href="/users" class="btn btn-sm btn-outline-secondary rounded-pill border-0 px-0 small text-decoration-none">Manage Users <i class="bi bi-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Main Area -->
+<div class="row">
+  <div class="col-lg-8">
+    <div class="card premium-card p-4">
+      <h5 class="fw-bold mb-3">Welcome to your Control Center</h5>
+      <p class="text-muted">As a System Administrator, you hold total operational authority over the entire SocietyMart full-stack ecosystem. You can:</p>
+      <div class="row g-3">
+        <div class="col-md-6 d-flex align-items-start gap-2">
+          <i class="bi bi-check-circle-fill text-pink fs-5" style="color: var(--primary-color);"></i>
+          <div>
+            <h6 class="mb-1 fw-bold">Add and Map Societies</h6>
+            <p class="small text-muted mb-0">Expand the marketplace to new housing complexes by defining names, locations, and addresses.</p>
+          </div>
+        </div>
+        <div class="col-md-6 d-flex align-items-start gap-2">
+          <i class="bi bi-check-circle-fill text-pink fs-5" style="color: var(--primary-color);"></i>
+          <div>
+            <h6 class="mb-1 fw-bold">Govern Home Kitchens</h6>
+            <p class="small text-muted mb-0">Track all neighborhood kitchens and manage seller authorization listings.</p>
+          </div>
+        </div>
+        <div class="col-md-6 d-flex align-items-start gap-2">
+          <i class="bi bi-check-circle-fill text-pink fs-5" style="color: var(--primary-color);"></i>
+          <div>
+            <h6 class="mb-1 fw-bold">Manage Menus & Listings</h6>
+            <p class="small text-muted mb-0">Moderate the dishes directory by modifying or removing problematic listings from the app.</p>
+          </div>
+        </div>
+        <div class="col-md-6 d-flex align-items-start gap-2">
+          <i class="bi bi-check-circle-fill text-pink fs-5" style="color: var(--primary-color);"></i>
+          <div>
+            <h6 class="mb-1 fw-bold">Directory Enforcement</h6>
+            <p class="small text-muted mb-0">Maintain database hygiene by editing, auditing, or deleting user registrations.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-lg-4">
+    <div class="card premium-card p-4">
+      <h5 class="fw-bold mb-3">Database Health</h5>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+          <div><i class="bi bi-check-circle-fill text-success me-2"></i>Supabase API</div>
+          <span class="badge bg-success rounded-pill">ONLINE</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+          <div><i class="bi bi-check-circle-fill text-success me-2"></i>Society Table</div>
+          <span class="badge bg-success rounded-pill">READY</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center border-0 px-0">
+          <div><i class="bi bi-check-circle-fill text-success me-2"></i>Users Table</div>
+          <span class="badge bg-success rounded-pill">SYNCED</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

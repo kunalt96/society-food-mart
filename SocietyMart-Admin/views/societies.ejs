@@ -1,0 +1,118 @@
+<%- include('partials/header') %>
+
+<div class="row align-items-center mb-4">
+  <div class="col">
+    <h2 class="h3 mb-0 text-gray-800 fw-bold">Manage Housing Societies</h2>
+    <p class="text-muted mb-0">List active societies and register new hubs on the marketplace</p>
+  </div>
+</div>
+
+<% if (locals.successMsg) { %>
+  <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
+    <i class="bi bi-check-circle-fill me-2"></i>
+    <div><%= successMsg %></div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% } %>
+
+<% if (locals.errorMsg) { %>
+  <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <div><%= errorMsg %></div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+<% } %>
+
+<div class="row">
+  <!-- Societies List Table -->
+  <div class="col-xl-8 col-lg-7">
+    <div class="card premium-card p-4">
+      <h5 class="fw-bold mb-3">Active Societies Directory</h5>
+      
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" style="border-radius: 8px 0 0 8px;">SOCIETY NAME</th>
+              <th scope="col">ADDRESS</th>
+              <th scope="col">LATITUDE</th>
+              <th scope="col">LONGITUDE</th>
+              <th scope="col" class="text-center" style="border-radius: 0 8px 8px 0; width: 120px;">ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (societies && societies.length > 0) { %>
+              <% societies.forEach(function(soc) { %>
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="rounded bg-light p-2 text-center" style="width: 40px; height: 40px; color: var(--primary-color);">
+                        <i class="bi bi-building"></i>
+                      </div>
+                      <div>
+                        <div class="fw-bold text-dark"><%= soc.name %></div>
+                        <span class="text-muted small">ID: <%= soc.id %></span>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span class="text-muted small"><%= soc.address || 'N/A' %></span></td>
+                  <td><code><%= soc.latitude || 'N/A' %></code></td>
+                  <td><code><%= soc.longitude || 'N/A' %></code></td>
+                  <td class="text-center">
+                    <form action="/societies/delete/<%= soc.id %>" method="POST" onsubmit="return confirm('Are you sure you want to delete this society? This may impact active users!');">
+                      <button type="submit" class="btn btn-sm btn-outline-danger border-0 rounded-circle" style="width: 32px; height: 32px; padding: 0;">
+                        <i class="bi bi-trash3-fill"></i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="5" class="text-center py-5 text-muted">
+                  <i class="bi bi-buildings text-muted d-block fs-1 mb-2" style="opacity: 0.3;"></i>
+                  No societies registered yet. Use the registration panel to add your first society!
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add New Society Form -->
+  <div class="col-xl-4 col-lg-5">
+    <div class="card premium-card p-4">
+      <h5 class="fw-bold mb-3"><i class="bi bi-plus-circle-fill text-pink me-1" style="color: var(--primary-color);"></i> Add New Society</h5>
+      <p class="small text-muted mb-4">Introduce a new housing community to the marketplace database.</p>
+      
+      <form action="/societies/add" method="POST">
+        <div class="mb-3">
+          <label for="name" class="form-label text-muted fw-bold small">SOCIETY NAME *</label>
+          <input type="text" class="form-control bg-light" id="name" name="name" placeholder="e.g. Prestige Shantiniketan" required>
+        </div>
+        
+        <div class="mb-3">
+          <label for="address" class="form-label text-muted fw-bold small">COMMUNITY ADDRESS *</label>
+          <textarea class="form-control bg-light" id="address" name="address" rows="2" placeholder="e.g. Whitefield Main Road, Bangalore" required></textarea>
+        </div>
+        
+        <div class="row">
+          <div class="col-6 mb-4">
+            <label for="latitude" class="form-label text-muted fw-bold small">LATITUDE</label>
+            <input type="number" step="any" class="form-control bg-light" id="latitude" name="latitude" placeholder="e.g. 12.9844">
+          </div>
+          <div class="col-6 mb-4">
+            <label for="longitude" class="form-label text-muted fw-bold small">LONGITUDE</label>
+            <input type="number" step="any" class="form-control bg-light" id="longitude" name="longitude" placeholder="e.g. 77.7376">
+          </div>
+        </div>
+        
+        <button type="submit" class="btn btn-primary-custom w-100 py-2 mt-2"><i class="bi bi-plus-lg me-1"></i> Register Society</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>
