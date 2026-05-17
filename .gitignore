@@ -28,3 +28,7 @@ serviceAccountKey.json
 **/.DS_Store
 *.pem
 **/*.pem
+
+# Agent Configuration
+.agent/
+.agent.md
