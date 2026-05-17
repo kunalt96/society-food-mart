@@ -268,12 +268,6 @@ const styles = StyleSheet.create({
   verifyText: { color: '#e75480', fontSize: 12, fontWeight: '600' },
   
   sectionTitle: { fontSize: 14, fontWeight: '600', color: '#1A1A1A', marginBottom: 12 },
-  roleContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 24 },
-  roleCard: { flex: 1, borderWidth: 1, borderColor: '#E5E5E5', borderRadius: 12, padding: 16, alignItems: 'center', marginHorizontal: 4 },
-  roleCardActive: { borderColor: '#e75480', backgroundColor: '#FDF0F5' },
-  roleTitle: { fontSize: 14, fontWeight: '600', color: '#1A1A1A', marginTop: 12, marginBottom: 4 },
-  roleTextActive: { color: '#1A1A1A' },
-  roleSubtitle: { fontSize: 12, color: '#999' },
   
   termsContainer: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 32 },
   checkbox: { width: 20, height: 20, borderRadius: 4, borderWidth: 1, borderColor: '#E5E5E5', marginRight: 12, marginTop: 2, justifyContent: 'center', alignItems: 'center' },
@@ -287,8 +281,6 @@ const styles = StyleSheet.create({
   successToast: { backgroundColor: '#4CAF50', flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 8, marginBottom: 20, zIndex: 10 },
   successToastText: { color: '#ffffff', fontSize: 14, fontWeight: '600', flex: 1 },
   disabledInputGroup: { backgroundColor: '#F9F9F9', borderColor: '#E5E5E5' },
-  disabledCheckbox: { backgroundColor: '#CCCCCC', borderColor: '#CCCCCC' },
-  successButton: { backgroundColor: '#4CAF50', shadowColor: '#4CAF50' },
   outlineButton: { width: '100%', paddingVertical: 16, borderRadius: 12, alignItems: 'center', borderWidth: 2, borderColor: '#e75480', backgroundColor: '#ffffff' },
   outlineButtonText: { color: '#e75480', fontSize: 16, fontWeight: '600' },
   textDetailsContainer: { backgroundColor: '#FDF7F9', borderRadius: 16, paddingHorizontal: 20, paddingVertical: 8, borderWidth: 1, borderColor: '#FADAE4', marginBottom: 24 },

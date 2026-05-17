@@ -181,12 +181,6 @@ function KitchenCard({ title, subtitle, rating, reviews, price, discount, isVeg 
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#ffffff' },
-
-  // Toast
-  toastContainer: { backgroundColor: '#e75480', flexDirection: 'row', alignItems: 'center', padding: 12, marginHorizontal: 20, marginTop: 10, borderRadius: 8, zIndex: 100 },
-  toastText: { color: '#fff', fontSize: 13, flex: 1, fontWeight: '500' },
-  toastButton: { backgroundColor: '#fff', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, marginLeft: 8 },
-  toastButtonText: { color: '#e75480', fontSize: 12, fontWeight: '700' },
   
   // Header
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 16 },
