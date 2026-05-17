@@ -1,0 +1,16 @@
+{
+  "name": "societymart-monorepo",
+  "version": "1.0.0",
+  "description": "Premium full-stack monorepo control orchestrator for SocietyMart",
+  "private": true,
+  "scripts": {
+    "start": "concurrently --kill-others-on-fail --prefix \"[{name}]\" --prefix-colors \"cyan,magenta,yellow\" \"npm run start:backend\" \"npm run start:admin\" \"npm run start:frontend\"",
+    "start:backend": "npm run start --prefix SocietyMart-Backend",
+    "start:admin": "npm run start --prefix SocietyMart-Admin",
+    "start:frontend": "npm run start --prefix SocietyMart",
+    "install:all": "concurrently --kill-others-on-fail \"npm install --prefix SocietyMart-Backend\" \"npm install --prefix SocietyMart-Admin\" \"npm install --prefix SocietyMart\""
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
