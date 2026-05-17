@@ -153,4 +153,3 @@ The repository is protected against credentials leak and build overhead via a un
 * **Clean Tracking**: System caches (`.expo/`), build directories (`dist/`, `web-build/`), and monorepo dependencies (`node_modules/`) are strictly untracked.
 
 ---
-*Created with ❤️ by Antigravity for SocietyMart System Administrators.*
