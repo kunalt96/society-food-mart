@@ -1,112 +1,253 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, TextInput, TouchableOpacity, Image } from 'react-native';
+import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import { useAuth } from '../../store/AuthContext';
 
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+export default function ExploreScreen() {
+  const { isRegistrationComplete, user } = useAuth();
 
-export default function TabTwoScreen() {
+  const getInitials = (name?: string) => {
+    if (!name) return 'U';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return parts[0].substring(0, 2).toUpperCase();
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
+    <SafeAreaView style={styles.container}>
+      
+      {/* Header */}
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.headerGreeting}>Hello, {user?.full_name?.split(' ')[0] || 'there'} 👋</Text>
+          <Text style={styles.headerTitle}>Explore Kitchens</Text>
+        </View>
+        <TouchableOpacity onPress={() => router.push('/(tabs)/profile')} style={styles.avatarButton}>
+          {user?.avatar_url ? (
+            <Image source={{ uri: user.avatar_url }} style={styles.avatar} />
+          ) : (
+            <View style={styles.avatarFallback}>
+              <Text style={styles.avatarFallbackText}>{getInitials(user?.full_name)}</Text>
+            </View>
+          )}
+        </TouchableOpacity>
+      </View>
+
+
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        
+        {/* Search */}
+        <View style={styles.searchContainer}>
+          <Feather name="search" size={20} color="#999" style={styles.searchIcon} />
+          <TextInput 
+            style={styles.searchInput} 
+            placeholder="Search dishes, kitchens..." 
+            placeholderTextColor="#999" 
+          />
+        </View>
+
+        {/* Filters */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll} contentContainerStyle={styles.filterContent}>
+          <TouchableOpacity style={[styles.filterChip, styles.sortChipActive]}>
+            <Ionicons name="options-outline" size={16} color="#e75480" />
+            <Text style={styles.sortChipTextActive}>Sort</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.filterChip}>
+            <View style={[styles.vegDot, { backgroundColor: '#4CAF50' }]} />
+            <Text style={styles.filterChipText}>Veg</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.filterChip}>
+            <View style={[styles.vegDot, { backgroundColor: '#F44336' }]} />
+            <Text style={styles.filterChipText}>Non-Veg</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.filterChip}>
+            <Text style={styles.filterChipText}>Price</Text>
+            <Feather name="chevron-down" size={16} color="#666" style={{ marginLeft: 4 }} />
+          </TouchableOpacity>
+        </ScrollView>
+
+        {/* Categories */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll} contentContainerStyle={styles.categoryContent}>
+          <CategoryCircle label="North Indian" isActive />
+          <CategoryCircle label="Biryani" />
+          <CategoryCircle label="South Indian" />
+          <CategoryCircle label="Desserts" />
+        </ScrollView>
+
+        {/* Results Header */}
+        <View style={styles.resultsHeader}>
+          <Text style={styles.resultsTitle}>12 Kitchens Found</Text>
+          <Text style={styles.resultsSort}>Nearest first</Text>
+        </View>
+
+        {/* Kitchen Cards */}
+        <KitchenCard 
+          title="Sharma's Authentic North"
+          subtitle="North Indian, Thalis, Beverages • Tower B"
+          rating="4.9"
+          reviews="120+"
+          price="₹200 for one"
+          discount="10% OFF"
+          isVeg
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
-        </ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={require('@/assets/images/react-logo.png')}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
+
+        <KitchenCard 
+          title="Biryani By Kilo"
+          subtitle="Biryani, Mughlai, Kebab • Flat 204"
+          rating="4.5"
+          reviews="85+"
+          price="₹350 for one"
+          discount="Free Delivery"
         />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+interface CategoryCircleProps {
+  label: string;
+  isActive?: boolean;
+}
+
+function CategoryCircle({ label, isActive = false }: CategoryCircleProps) {
+  return (
+    <View style={styles.categoryWrapper}>
+      <View style={[styles.categoryCircle, isActive && styles.categoryCircleActive]}>
+        <View style={styles.categoryImagePlaceholder} />
+      </View>
+      <Text style={[styles.categoryLabel, isActive && styles.categoryLabelActive]}>
+        {label.replace(' ', '\n')}
+      </Text>
+    </View>
+  );
+}
+
+interface KitchenCardProps {
+  title: string;
+  subtitle: string;
+  rating: string;
+  reviews: string;
+  price: string;
+  discount?: string;
+  isVeg?: boolean;
+}
+
+function KitchenCard({ title, subtitle, rating, reviews, price, discount, isVeg }: KitchenCardProps) {
+  return (
+    <View style={styles.kitchenCard}>
+      <View style={styles.kitchenImagePlaceholder}>
+        <View style={styles.tagOverlay}>
+          <View style={[styles.vegDotSmall, { backgroundColor: isVeg ? '#4CAF50' : '#F44336' }]} />
+          <Text style={styles.tagText}>{isVeg ? 'Veg Only' : 'Non-Veg'}</Text>
+        </View>
+        <TouchableOpacity style={styles.heartButton}>
+          <Feather name="heart" size={16} color="#e75480" />
+        </TouchableOpacity>
+        <View style={styles.timeOverlay}>
+          <Text style={styles.timeText}>20-30 min</Text>
+        </View>
+        <View style={styles.kitchenAvatarPlaceholder} />
+      </View>
+
+      <View style={styles.kitchenContent}>
+        <Text style={styles.kitchenTitle}>{title}</Text>
+        <Text style={styles.kitchenSubtitle}>{subtitle}</Text>
+        
+        <View style={styles.kitchenMetaRow}>
+          <Text style={styles.ratingText}>⭐ {rating} <Text style={styles.reviewsText}>({reviews})</Text></Text>
+          <Text style={styles.dotSeparator}>•</Text>
+          <Text style={styles.priceText}>{price}</Text>
+          {discount && (
+            <>
+              <Text style={styles.dotSeparator}>•</Text>
+              <View style={styles.discountBadge}>
+                <Ionicons name="pricetag" size={12} color="#e75480" />
+                <Text style={styles.discountText}>{discount}</Text>
+              </View>
+            </>
+          )}
+        </View>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
+  container: { flex: 1, backgroundColor: '#ffffff' },
+
+  // Toast
+  toastContainer: { backgroundColor: '#e75480', flexDirection: 'row', alignItems: 'center', padding: 12, marginHorizontal: 20, marginTop: 10, borderRadius: 8, zIndex: 100 },
+  toastText: { color: '#fff', fontSize: 13, flex: 1, fontWeight: '500' },
+  toastButton: { backgroundColor: '#fff', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, marginLeft: 8 },
+  toastButtonText: { color: '#e75480', fontSize: 12, fontWeight: '700' },
+  
+  // Header
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 16 },
+  headerGreeting: { fontSize: 13, color: '#999', fontWeight: '500', marginBottom: 2 },
+  headerTitle: { fontSize: 20, fontWeight: '700', color: '#1A1A1A' },
+  avatarButton: { width: 44, height: 44, borderRadius: 22, overflow: 'hidden' },
+  avatar: { width: 44, height: 44, borderRadius: 22 },
+  avatarFallback: { width: 44, height: 44, borderRadius: 22, backgroundColor: '#FDF0F5', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: '#e75480' },
+  avatarFallbackText: { color: '#e75480', fontSize: 16, fontWeight: '700' },
+
+
+  scrollContent: { paddingBottom: 40 },
+
+  // Search
+  searchContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8F8F8', borderRadius: 12, paddingHorizontal: 16, height: 50, marginHorizontal: 20, marginBottom: 20 },
+  searchIcon: { marginRight: 10 },
+  searchInput: { flex: 1, fontSize: 15, color: '#1A1A1A' },
+
+  // Filters
+  filterScroll: { flexGrow: 0, marginBottom: 24 },
+  filterContent: { paddingHorizontal: 20, gap: 12 },
+  filterChip: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, borderWidth: 1, borderColor: '#E5E5E5', backgroundColor: '#ffffff' },
+  sortChipActive: { backgroundColor: '#FDF0F5', borderColor: '#FDF0F5' },
+  sortChipTextActive: { color: '#e75480', fontWeight: '600', marginLeft: 6, fontSize: 14 },
+  filterChipText: { color: '#4A4A4A', fontSize: 14, fontWeight: '500' },
+  vegDot: { width: 8, height: 8, borderRadius: 4, marginRight: 8 },
+
+  // Categories
+  categoryScroll: { flexGrow: 0, marginBottom: 32 },
+  categoryContent: { paddingHorizontal: 20, gap: 20 },
+  categoryWrapper: { alignItems: 'center', width: 72 },
+  categoryCircle: { width: 64, height: 64, borderRadius: 32, padding: 3, borderWidth: 2, borderColor: 'transparent', marginBottom: 8 },
+  categoryCircleActive: { borderColor: '#e75480' },
+  categoryImagePlaceholder: { flex: 1, borderRadius: 30, backgroundColor: '#E5E5E5' },
+  categoryLabel: { fontSize: 12, color: '#666', textAlign: 'center', fontWeight: '500', lineHeight: 16 },
+  categoryLabelActive: { color: '#e75480', fontWeight: '600' },
+
+  // Results Header
+  resultsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, marginBottom: 16 },
+  resultsTitle: { fontSize: 18, fontWeight: '700', color: '#1A1A1A' },
+  resultsSort: { fontSize: 14, color: '#999', fontWeight: '500' },
+
+  // Kitchen Card
+  kitchenCard: { backgroundColor: '#ffffff', borderRadius: 16, overflow: 'hidden', borderWidth: 1, borderColor: '#F0F0F0', marginHorizontal: 20, marginBottom: 24 },
+  kitchenImagePlaceholder: { height: 180, backgroundColor: '#E5E5E5', position: 'relative' },
+  tagOverlay: { position: 'absolute', top: 12, left: 12, backgroundColor: '#ffffff', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 20, flexDirection: 'row', alignItems: 'center' },
+  vegDotSmall: { width: 6, height: 6, borderRadius: 3, marginRight: 6 },
+  tagText: { fontSize: 12, fontWeight: '600', color: '#1A1A1A' },
+  heartButton: { position: 'absolute', top: 12, right: 12, width: 36, height: 36, borderRadius: 18, backgroundColor: '#ffffff', justifyContent: 'center', alignItems: 'center' },
+  timeOverlay: { position: 'absolute', bottom: 12, right: 12, backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
+  timeText: { color: '#fff', fontSize: 12, fontWeight: '600' },
+  kitchenAvatarPlaceholder: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#D9D9D9', position: 'absolute', right: 20, bottom: -24, borderWidth: 3, borderColor: '#ffffff', zIndex: 10 },
+  
+  kitchenContent: { padding: 16, paddingTop: 20 },
+  kitchenTitle: { fontSize: 18, fontWeight: '700', color: '#1A1A1A', marginBottom: 4 },
+  kitchenSubtitle: { fontSize: 14, color: '#666', marginBottom: 12 },
+  kitchenMetaRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' },
+  ratingText: { fontSize: 13, fontWeight: '700', color: '#1A1A1A' },
+  reviewsText: { color: '#999', fontWeight: 'normal' },
+  dotSeparator: { color: '#CCC', marginHorizontal: 8 },
+  priceText: { fontSize: 13, color: '#666' },
+  discountBadge: { flexDirection: 'row', alignItems: 'center' },
+  discountText: { fontSize: 13, color: '#e75480', fontWeight: '600', marginLeft: 4 },
 });
