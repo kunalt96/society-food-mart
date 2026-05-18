@@ -32,45 +32,64 @@ router.get('/', authMiddleware, async (req, res) => {
 // @access  Private
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const user = req.user;
-    const { name, description, price, isVeg, imageUrl } = req.body;
-
-    // First check if the user is a seller in our DB
-    const { data: dbUser, error: userError } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single();
-
-    if (userError || !dbUser || dbUser.role !== 'seller') {
-      return res.status(403).json({ error: 'Forbidden: Only sellers can add dishes' });
-    }
+    const user = req.user; // Decoded Firebase user from authMiddleware
+    const { name, description, price, isVeg, imageUrl, category } = req.body;
 
     if (!name || !price) {
       return res.status(400).json({ error: 'Name and price are required' });
     }
 
+    // 1. Fetch the seller's profile from the DB using user's phone
+    const { data: dbUser, error: userError } = await supabase
+      .from('users')
+      .select('id, role, kitchen_id')
+      .eq('phone', user.phone)
+      .single();
+
+    if (userError || !dbUser) {
+      return res.status(404).json({ error: 'User profile not found' });
+    }
+
+    if (dbUser.role !== 'seller') {
+      return res.status(403).json({ error: 'Forbidden: Only sellers can add dishes' });
+    }
+
+    if (!dbUser.kitchen_id) {
+      return res.status(400).json({ 
+        error: 'No registered kitchen found for this user profile. Please register a kitchen first.' 
+      });
+    }
+
+    // 2. Insert the new dish using the active kitchen_id
     const { data: newDish, error: dishError } = await supabase
       .from('dishes')
       .insert([
         {
-          kitchen_id: user.id, // The seller is the kitchen
+          kitchen_id: dbUser.kitchen_id, // Link to the new cloud_kitchens.id
           name,
           description: description || '',
-          price,
+          price: parseFloat(price),
           is_veg: isVeg ?? true,
           image_url: imageUrl || null,
+          category: category || 'Meals',
           is_available: true
         }
       ])
       .select()
       .single();
 
-    if (dishError) throw dishError;
+    if (dishError) {
+      console.error('Error adding dish:', dishError.message);
+      return res.status(500).json({ error: 'Failed to add dish' });
+    }
 
-    res.status(201).json({ message: 'Dish added successfully', dish: newDish });
+    res.status(201).json({ 
+      message: 'Dish added successfully', 
+      dish: newDish 
+    });
+
   } catch (err) {
-    console.error('Error adding dish:', err);
+    console.error('Error adding dish server error:', err);
     res.status(500).json({ error: 'Server error adding dish' });
   }
 });

@@ -6,6 +6,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const dishRoutes = require('./routes/dishes');
 const kitchenRoutes = require('./routes/kitchens');
+const societyRoutes = require('./routes/societies');
 const splashRoutes = require('./routes/splash');
 
 const app = express();
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/dishes', dishRoutes);
 app.use('/api/kitchens', kitchenRoutes);
+app.use('/api/societies', societyRoutes);
 app.use('/api/splash', splashRoutes);
 
 const PORT = process.env.PORT || 5001;
