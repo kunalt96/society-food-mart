@@ -6,6 +6,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const dishRoutes = require('./routes/dishes');
 const kitchenRoutes = require('./routes/kitchens');
+const orderRoutes = require('./routes/orders');
 const societyRoutes = require('./routes/societies');
 const splashRoutes = require('./routes/splash');
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/dishes', dishRoutes);
 app.use('/api/kitchens', kitchenRoutes);
+app.use('/api/orders', orderRoutes);
 app.use('/api/societies', societyRoutes);
 app.use('/api/splash', splashRoutes);
 
