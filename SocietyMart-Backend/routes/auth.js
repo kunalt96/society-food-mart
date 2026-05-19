@@ -41,7 +41,7 @@ router.post('/login', authMiddleware, async (req, res) => {
         phone: phone,
         society_id: null,
         flat_number: '',
-        role: []
+        role: ['buyer']
       };
 
       return res.status(200).json({
