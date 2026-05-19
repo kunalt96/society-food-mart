@@ -50,7 +50,11 @@ router.post('/', authMiddleware, async (req, res) => {
       return res.status(404).json({ error: 'User profile not found' });
     }
 
-    if (dbUser.role !== 'seller') {
+    const hasSellerRole = Array.isArray(dbUser.role)
+      ? dbUser.role.includes('seller')
+      : dbUser.role === 'seller';
+
+    if (!hasSellerRole) {
       return res.status(403).json({ error: 'Forbidden: Only sellers can add dishes' });
     }
 

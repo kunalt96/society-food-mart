@@ -124,7 +124,7 @@ CREATE TABLE users (
   full_name TEXT,
   society_id UUID REFERENCES societies(id) ON DELETE SET NULL,
   flat_number TEXT,
-  role TEXT CHECK (role IN ('buyer', 'seller', 'admin')),
+  role TEXT[] DEFAULT '{buyer}'::text[],
   avatar_url TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );

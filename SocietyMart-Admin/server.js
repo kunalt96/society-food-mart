@@ -120,8 +120,8 @@ app.get('/dashboard', requireLogin, async (req, res) => {
     const { data: societies } = await safeGetSocieties();
     const societiesCount = societies.length;
 
-    // 2. Get active kitchens count (role === 'seller')
-    const { data: kitchens } = await supabase.from('users').select('id').eq('role', 'seller');
+    // 2. Get active kitchens count (role contains 'seller')
+    const { data: kitchens } = await supabase.from('users').select('id').cs('role', ['seller']);
     const kitchensCount = kitchens ? kitchens.length : 0;
 
     // 3. Get total dishes count
@@ -211,7 +211,7 @@ app.get('/kitchens', requireLogin, async (req, res) => {
     const { data: users, error: userError } = await supabase
       .from('users')
       .select('*')
-      .eq('role', 'seller');
+      .cs('role', ['seller']);
 
     if (userError) throw userError;
 

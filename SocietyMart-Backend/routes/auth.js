@@ -41,7 +41,7 @@ router.post('/login', authMiddleware, async (req, res) => {
         phone: phone,
         society_id: null,
         flat_number: '',
-        role: ''
+        role: []
       };
 
       return res.status(200).json({
@@ -76,7 +76,7 @@ router.post('/complete-registration', authMiddleware, async (req, res) => {
     const user = req.user;
     const { fullName, societyId, flatNumber, role } = req.body;
 
-    if (!fullName || !societyId || !role) {
+    if (!fullName || !societyId || !role || (Array.isArray(role) && role.length === 0)) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
@@ -85,6 +85,8 @@ router.post('/complete-registration', authMiddleware, async (req, res) => {
     if (!phone) {
       return res.status(400).json({ error: 'Phone number not found in token' });
     }
+
+    const roleArray = Array.isArray(role) ? role : [role];
 
     console.log(`[Auth] Upserting profile for Phone: ${phone}`);
 
@@ -97,7 +99,7 @@ router.post('/complete-registration', authMiddleware, async (req, res) => {
         full_name: fullName,
         society_id: societyId,
         flat_number: flatNumber,
-        role: role
+        role: roleArray
       }, {
         onConflict: 'phone'
       })

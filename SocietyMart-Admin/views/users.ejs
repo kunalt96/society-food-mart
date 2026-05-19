@@ -49,13 +49,17 @@
               <td><a href="tel:<%= member.phone %>" class="text-decoration-none text-muted small"><%= member.phone %></a></td>
               <td><span class="text-muted small"><%= member.email || 'N/A' %></span></td>
               <td>
-                <% if (member.role === 'seller') { %>
-                  <span class="badge bg-success-subtle text-success py-1 px-3 rounded-pill small">Seller / Chef</span>
-                <% } else if (member.role === 'buyer') { %>
-                  <span class="badge bg-info-subtle text-info py-1 px-3 rounded-pill small">Buyer</span>
-                <% } else { %>
-                  <span class="badge bg-secondary-subtle text-secondary py-1 px-3 rounded-pill small">Pending / Empty</span>
-                <% } %>
+                <% 
+                  const roles = Array.isArray(member.role) ? member.role : (member.role ? [member.role] : []);
+                  if (roles.includes('seller') && roles.includes('buyer')) { %>
+                    <span class="badge bg-primary-subtle text-primary py-1 px-3 rounded-pill small">Buyer &amp; Seller</span>
+                  <% } else if (roles.includes('seller')) { %>
+                    <span class="badge bg-success-subtle text-success py-1 px-3 rounded-pill small">Seller / Chef</span>
+                  <% } else if (roles.includes('buyer')) { %>
+                    <span class="badge bg-info-subtle text-info py-1 px-3 rounded-pill small">Buyer</span>
+                  <% } else { %>
+                    <span class="badge bg-secondary-subtle text-secondary py-1 px-3 rounded-pill small">Pending / Empty</span>
+                  <% } %>
               </td>
               <td>
                 <span class="badge badge-pink py-2 px-3 rounded-pill small">
