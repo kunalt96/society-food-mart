@@ -170,6 +170,10 @@ app.get('/societies', requireLogin, async (req, res) => {
 // @route   POST /societies/add
 app.post('/societies/add', requireLogin, async (req, res) => {
   const { name, address, latitude, longitude } = req.body;
+  // Basic validation
+  if (!name || !address) {
+    return res.redirect('/societies?error=Name and address are required.');
+  }
   try {
     const { error } = await supabase.from('societies').insert({
       name,
@@ -182,13 +186,13 @@ app.post('/societies/add', requireLogin, async (req, res) => {
       if (error.message.includes('does not exist')) {
         return res.redirect('/societies?error=missing_table');
       }
-      throw error;
+      return res.redirect('/societies?error=' + encodeURIComponent(error.message));
     }
 
-    res.redirect('/societies?success=Society registered successfully!');
+    res.redirect('/societies?success=' + encodeURIComponent('Society registered successfully!'));
   } catch (err) {
     console.error('Error adding society:', err.message);
-    res.redirect('/societies');
+    res.redirect('/societies?error=' + encodeURIComponent('Failed to add society.'));
   }
 });
 
@@ -260,7 +264,8 @@ app.post('/kitchens/delete/:id', requireLogin, async (req, res) => {
 // @route   GET /dishes
 app.get('/dishes', requireLogin, async (req, res) => {
   try {
-    const { data: dishesList, error: dishError } = await supabase.from('dishes').select('*');
+  let errorMsg = null;
+  let successMsg = null;
     if (dishError) throw dishError;
 
     const { data: users } = await supabase.from('users').select('id, full_name');

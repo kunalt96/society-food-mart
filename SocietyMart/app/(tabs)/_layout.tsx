@@ -46,13 +46,18 @@ export default function TabLayout() {
       <Tabs.Screen 
         name="sell" 
         options={{ 
-          title: 'Sell',
+          title: 'Seller',
           tabBarIcon: ({ color }) => <Ionicons name="storefront-outline" size={24} color={color} />
         }} 
       />
       {/* Keep profile screen hidden from tab bar but still accessible as a route */}
       <Tabs.Screen 
         name="profile" 
+        options={{ href: null }} 
+      />
+      {/* Keep history screen hidden from tab bar but still accessible as a route */}
+      <Tabs.Screen 
+        name="history" 
         options={{ href: null }} 
       />
     </Tabs>

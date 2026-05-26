@@ -8,6 +8,7 @@
     "start:backend": "npm run start --prefix SocietyMart-Backend",
     "start:admin": "npm run start --prefix SocietyMart-Admin",
     "start:frontend": "npm run start --prefix SocietyMart",
+    "start:ios": "concurrently --kill-others-on-fail --prefix \"[{name}]\" --prefix-colors \"cyan,magenta\" --names \"backend,ios\" \"npm run start:backend\" \"npm run ios --prefix SocietyMart\"",
     "install:all": "concurrently --kill-others-on-fail \"npm install --prefix SocietyMart-Backend\" \"npm install --prefix SocietyMart-Admin\" \"npm install --prefix SocietyMart\""
   },
   "dependencies": {

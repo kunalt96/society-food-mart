@@ -51,6 +51,25 @@ router.post('/login', authMiddleware, async (req, res) => {
       });
     }
 
+    let userWithSociety = existingUser;
+
+    if (existingUser.society_id) {
+      const { data: societyData, error: societyError } = await supabase
+        .from('societies')
+        .select('*')
+        .eq('id', existingUser.society_id)
+        .single();
+
+      if (societyError && societyError.code !== 'PGRST116') {
+        console.warn('[Auth] Failed to fetch society details:', societyError.message);
+      }
+
+      userWithSociety = {
+        ...existingUser,
+        society: societyData || null,
+      };
+    }
+
     // 3. User exists - check if registration is complete
     const isNewUser = !existingUser.full_name || !existingUser.society_id;
 
@@ -58,7 +77,7 @@ router.post('/login', authMiddleware, async (req, res) => {
 
     res.status(200).json({
       isNewUser,
-      user: existingUser,
+      user: userWithSociety,
       message: isNewUser ? 'Welcome! Please complete your profile.' : 'Welcome back!'
     });
 

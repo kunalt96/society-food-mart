@@ -1,14 +1,44 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect, useMemo } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform, ScrollView, Alert, ActivityIndicator, Modal } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import { useAuth } from '../../store/AuthContext';
+import { api } from '../../config/api';
 export default function ProfileScreen() {
-  const { user, completeRegistration, isRegistrationComplete, logout } = useAuth();
+  const { user, sessionToken, completeRegistration, isRegistrationComplete, logout } = useAuth();
   
   const [fullName, setFullName] = useState(user?.full_name || '');
   const [phone, setPhone] = useState(user?.phone || '');
-  const [societyId, setSocietyId] = useState(user?.society_id || 'temp_society_id'); // Just placeholder for now until dropdown is dynamic
+  const [societyId, setSocietyId] = useState(user?.society_id || '');
+  const [societies, setSocieties] = useState<{ id: string; name: string }[]>([]);
+  const [societiesLoading, setSocietiesLoading] = useState(false);
+  const [isSocietyModalOpen, setIsSocietyModalOpen] = useState(false);
+    // Fetch societies for dropdown (only if user is authenticated)
+    useEffect(() => {
+      if (!user || !sessionToken) return;
+      const fetchSocieties = async () => {
+        setSocietiesLoading(true);
+        try {
+          const response = await api.get('/societies', {
+            headers: { Authorization: `Bearer ${sessionToken}` },
+          });
+          if (Array.isArray(response.data)) {
+            setSocieties(response.data);
+          } else {
+            setSocieties([]);
+          }
+        } catch (err) {
+          setSocieties([]);
+        } finally {
+          setSocietiesLoading(false);
+        }
+      };
+      fetchSocieties();
+    }, [user, sessionToken]);
+
+    const selectedSocietyName = useMemo(() => {
+      return societies.find((soc) => String(soc.id) === String(societyId))?.name || '';
+    }, [societies, societyId]);
   const [flatNumber, setFlatNumber] = useState(user?.flat_number || '');
   const [agreed, setAgreed] = useState(true); // Default to agreed for easier signup
   const [loading, setLoading] = useState(false);
@@ -25,8 +55,8 @@ export default function ProfileScreen() {
   }, [user]);
 
   const handleSubmit = async () => {
-    if (!fullName || !phone || !flatNumber) {
-      Alert.alert('Missing Info', 'Please fill in all details.');
+    if (!fullName || !phone || !flatNumber || !societyId) {
+      Alert.alert('Missing Info', 'Please fill in all details, including society.');
       return;
     }
     try {
@@ -126,10 +156,47 @@ export default function ProfileScreen() {
                   </View>
                 </View>
 
-                <View style={styles.inputGroup}>
-                  <Text style={[styles.input, { color: '#666', paddingTop: 16 }]}>Prestige Shantiniketan</Text>
-                  <Feather name="chevron-down" size={20} color="#999" style={styles.inputIcon} />
+                <Text style={styles.fieldLabel}>Society</Text>
+                <View style={styles.dropdownGroup}>
+                  <TouchableOpacity
+                    style={styles.dropdown}
+                    disabled={societiesLoading}
+                    onPress={() => setIsSocietyModalOpen(true)}>
+                    <Text style={selectedSocietyName ? styles.dropdownValue : styles.dropdownPlaceholder}>
+                      {societiesLoading
+                        ? 'Loading societies...'
+                        : selectedSocietyName || 'Select Society'}
+                    </Text>
+                    <Ionicons name="chevron-down" size={18} color="#666" />
+                  </TouchableOpacity>
+                  <Modal visible={isSocietyModalOpen} transparent animationType="slide">
+                    <TouchableOpacity
+                      activeOpacity={1}
+                      style={styles.modalBackdrop}
+                      onPress={() => setIsSocietyModalOpen(false)}>
+                      <View style={styles.modalSheet}>
+                        <Text style={styles.modalTitle}>Choose Society</Text>
+                        <ScrollView>
+                          {societies.map((society) => (
+                            <TouchableOpacity
+                              key={society.id}
+                              style={styles.modalRow}
+                              onPress={() => {
+                                setSocietyId(String(society.id));
+                                setIsSocietyModalOpen(false);
+                              }}>
+                              <Text style={styles.modalRowText}>{society.name}</Text>
+                              {String(society.id) === String(societyId) ? (
+                                <Ionicons name="checkmark-circle" size={18} color="#e75480" />
+                              ) : null}
+                            </TouchableOpacity>
+                          ))}
+                        </ScrollView>
+                      </View>
+                    </TouchableOpacity>
+                  </Modal>
                 </View>
+
 
                 <View style={styles.inputGroup}>
                   <TextInput 
@@ -187,7 +254,7 @@ export default function ProfileScreen() {
                       if (user) {
                         setFullName(user.full_name || '');
                         setFlatNumber(user.flat_number || '');
-                        setSocietyId(user.society_id || 'temp_society_id');
+                        setSocietyId(user.society_id || '');
                       }
                       setIsEditing(false);
                     }}
@@ -213,7 +280,9 @@ export default function ProfileScreen() {
 
                 <View style={styles.detailRow}>
                   <Feather name="map-pin" size={20} color="#e75480" style={styles.detailIcon} />
-                  <Text style={styles.detailText}>Prestige Shantiniketan</Text>
+                  <Text style={styles.detailText}>
+                    {societies.find(s => s.id === societyId)?.name || 'Society not selected'}
+                  </Text>
                 </View>
 
                 <View style={styles.detailRow}>
@@ -259,6 +328,45 @@ const styles = StyleSheet.create({
   smallLogo: { width: 32, height: 32, borderRadius: 8, backgroundColor: '#FDF0F5', justifyContent: 'center', alignItems: 'center' },
   title: { fontSize: 24, fontWeight: '700', color: '#1A1A1A', marginBottom: 8 },
   subtitle: { fontSize: 14, color: '#666', marginBottom: 24 },
+  fieldLabel: { color: '#222', fontWeight: '600', marginBottom: 8, marginTop: 6 },
+  dropdownGroup: { marginBottom: 16 },
+
+  dropdown: {
+    borderWidth: 1,
+    borderColor: '#E6E6E6',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 13,
+    backgroundColor: '#FAFAFA',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  dropdownValue: { color: '#1A1A1A', fontSize: 14 },
+  dropdownPlaceholder: { color: '#999', fontSize: 14 },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+    justifyContent: 'flex-end',
+  },
+  modalSheet: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+    maxHeight: '60%',
+    padding: 16,
+    paddingBottom: 28,
+  },
+  modalTitle: { fontSize: 16, fontWeight: '700', color: '#1A1A1A', marginBottom: 10 },
+  modalRow: {
+    paddingVertical: 13,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F3F3',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  modalRowText: { color: '#222', fontSize: 15 },
   
   formContainer: { marginBottom: 24 },
   inputGroup: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#E5E5E5', borderRadius: 12, marginBottom: 16, paddingHorizontal: 16, height: 56 },

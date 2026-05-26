@@ -1,11 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView, TextInput, TouchableOpacity, Image } from 'react-native';
 import { Feather, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useAuth } from '../../store/AuthContext';
+import { api } from '../../config/api';
 
 export default function BuyerHomeScreen() {
   const { user } = useAuth();
+  const [orders, setOrders] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchOrders() {
+      if (!user?.id) {
+        setIsLoading(false);
+        return;
+      }
+      try {
+        const response = await api.get('/orders');
+        setOrders(response.data || []);
+      } catch (error) {
+        console.error('Error fetching orders:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchOrders();
+  }, [user?.id]);
 
   const getInitials = (name?: string) => {
     if (!name) return 'U';
@@ -16,6 +37,8 @@ export default function BuyerHomeScreen() {
     return parts[0].substring(0, 2).toUpperCase();
   };
 
+  const societyName = user?.society?.name || 'Society Not Selected';
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -25,7 +48,7 @@ export default function BuyerHomeScreen() {
           <View style={styles.locationContainer}>
             <View style={styles.locationRow}>
               <Ionicons name="business" size={14} color="#e75480" />
-              <Text style={styles.societyName}>PRESTIGE SHANTINIKETAN</Text>
+              <Text style={styles.societyName}>{String(societyName).toUpperCase()}</Text>
             </View>
             <View style={styles.marketplaceRow}>
               <Text style={styles.marketplaceTitle}>Society Marketplace</Text>
@@ -69,48 +92,55 @@ export default function BuyerHomeScreen() {
         </View>
 
         {/* Order Again Section */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Order Again</Text>
-          <TouchableOpacity><Text style={styles.viewHistoryText}>View History</Text></TouchableOpacity>
-        </View>
-        
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
-          <View style={styles.reorderCard}>
-            <View style={styles.reorderCardHeader}>
-              <View style={styles.reorderImagePlaceholder} />
-              <View style={styles.reorderInfo}>
-                <Text style={styles.reorderTitle}>Chicken Dum Biryani</Text>
-                <Text style={styles.reorderSubtitle}>Ayesha's Kitchen • Flat 402</Text>
-                <View style={styles.reorderPriceRow}>
-                  <Text style={styles.reorderPrice}>₹240</Text>
-                  <Text style={styles.reorderRating}>⭐ 4.8</Text>
-                </View>
-              </View>
+        {!isLoading && orders.length > 0 && (
+          <>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Order Again</Text>
+              <TouchableOpacity onPress={() => router.push('/(tabs)/history')}>
+                <Text style={styles.viewHistoryText}>View History</Text>
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.reorderButton}>
-              <Feather name="refresh-cw" size={14} color="#e75480" style={{marginRight: 6}} />
-              <Text style={styles.reorderButtonText}>Reorder</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Placeholder for second card */}
-          <View style={styles.reorderCard}>
-            <View style={styles.reorderCardHeader}>
-              <View style={styles.reorderImagePlaceholder} />
-              <View style={styles.reorderInfo}>
-                <Text style={styles.reorderTitle}>Fresh Banana Bread</Text>
-                <Text style={styles.reorderSubtitle}>The Bakehouse • Flat...</Text>
-                <View style={styles.reorderPriceRow}>
-                  <Text style={styles.reorderPrice}>₹180</Text>
-                </View>
-              </View>
-            </View>
-            <TouchableOpacity style={styles.reorderButton}>
-              <Feather name="refresh-cw" size={14} color="#e75480" style={{marginRight: 6}} />
-              <Text style={styles.reorderButtonText}>Reorder</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
+            
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
+              {orders.map((order) => {
+                const firstDish = order.dishes?.[0];
+                const dishTitle = firstDish 
+                  ? (order.dishes.length > 1 
+                      ? `${firstDish.name} + ${order.dishes.length - 1} more` 
+                      : firstDish.name)
+                  : 'No dishes';
+                
+                return (
+                  <View key={order.id} style={styles.reorderCard}>
+                    <View style={styles.reorderCardHeader}>
+                      {firstDish?.image_url || firstDish?.imageUrl ? (
+                        <Image 
+                          source={{ uri: firstDish.image_url || firstDish.imageUrl }} 
+                          style={styles.reorderImage} 
+                        />
+                      ) : (
+                        <View style={styles.reorderImagePlaceholder} />
+                      )}
+                      <View style={styles.reorderInfo}>
+                        <Text style={styles.reorderTitle} numberOfLines={1}>{dishTitle}</Text>
+                        <Text style={styles.reorderSubtitle} numberOfLines={1}>
+                          {order.kitchen?.name || 'Local Kitchen'}
+                        </Text>
+                        <View style={styles.reorderPriceRow}>
+                          <Text style={styles.reorderPrice}>₹{order.total_cost}</Text>
+                        </View>
+                      </View>
+                    </View>
+                    <TouchableOpacity style={styles.reorderButton} activeOpacity={0.7}>
+                      <Feather name="refresh-cw" size={14} color="#e75480" style={{marginRight: 6}} />
+                      <Text style={styles.reorderButtonText}>Reorder</Text>
+                    </TouchableOpacity>
+                  </View>
+                );
+              })}
+            </ScrollView>
+          </>
+        )}
 
         {/* Featured Neighbors Section */}
         <View style={styles.sectionHeader}>
@@ -200,6 +230,7 @@ const styles = StyleSheet.create({
   reorderCard: { width: 280, backgroundColor: '#ffffff', borderRadius: 16, padding: 12, marginRight: 16, borderWidth: 1, borderColor: '#F0F0F0', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, elevation: 2 },
   reorderCardHeader: { flexDirection: 'row', marginBottom: 12 },
   reorderImagePlaceholder: { width: 64, height: 64, borderRadius: 12, backgroundColor: '#E5E5E5', marginRight: 12 },
+  reorderImage: { width: 64, height: 64, borderRadius: 12, marginRight: 12 },
   reorderInfo: { flex: 1 },
   reorderTitle: { fontSize: 15, fontWeight: '700', color: '#1A1A1A', marginBottom: 4 },
   reorderSubtitle: { fontSize: 12, color: '#666', marginBottom: 8 },

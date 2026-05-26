@@ -1,0 +1,10 @@
+To use the societies dropdown, you must install:
+
+expo install @react-native-picker/picker
+
+and import:
+import { Picker } from '@react-native-picker/picker';
+
+This is required for the societies dropdown to work in React Native/Expo.
+
+If you want, I can add this to your dependencies automatically.

@@ -15,10 +15,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get('/myget', (req, res) => {
+  res.send('hello my friend')
+})
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/dishes', dishRoutes);
 app.use('/api/kitchens', kitchenRoutes);
+app.use('/api/kitchen', kitchenRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/societies', societyRoutes);
 app.use('/api/splash', splashRoutes);

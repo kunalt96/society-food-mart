@@ -3,22 +3,27 @@ const router = express.Router();
 const supabase = require('../config/supabase');
 const authMiddleware = require('../middleware/authMiddleware');
 
+function normalizeRoles(role) {
+  if (Array.isArray(role)) return role;
+  if (typeof role === 'string' && role.trim()) return [role.trim()];
+  return [];
+}
+
 // @route   POST /api/kitchens
-// @desc    Register a new cloud kitchen (Sellers/Chefs only)
+// @desc    Register a new cloud kitchen request (buyer can become seller)
 // @access  Private
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const user = req.user; // Decoded Firebase user from authMiddleware
+    const user = req.user;
     const { name, description, imageUrl, societyId } = req.body;
 
     if (!name || !societyId) {
       return res.status(400).json({ error: 'Name and housing society ID are required' });
     }
 
-    // 1. Fetch user from Supabase using user's phone to check role and if they already have a kitchen
     const { data: dbUser, error: userError } = await supabase
       .from('users')
-      .select('*')
+      .select('id, role, kitchen_id')
       .eq('phone', user.phone)
       .single();
 
@@ -26,19 +31,10 @@ router.post('/', authMiddleware, async (req, res) => {
       return res.status(404).json({ error: 'User profile not found. Please complete registration first.' });
     }
 
-    const hasSellerRole = Array.isArray(dbUser.role)
-      ? dbUser.role.includes('seller')
-      : dbUser.role === 'seller';
-
-    if (!hasSellerRole) {
-      return res.status(403).json({ error: 'Only sellers/chefs are authorized to register cloud kitchens' });
-    }
-
     if (dbUser.kitchen_id) {
-      return res.status(400).json({ error: 'User already owns a registered cloud kitchen' });
+      return res.status(400).json({ error: 'Kitchen already exists for this user' });
     }
 
-    // 2. Create the Cloud Kitchen entry
     const { data: newKitchen, error: kitchenError } = await supabase
       .from('cloud_kitchens')
       .insert([
@@ -47,7 +43,8 @@ router.post('/', authMiddleware, async (req, res) => {
           name,
           description: description || '',
           image_url: imageUrl || '',
-          is_active: true
+          is_active: true,
+          is_verified: false
         }
       ])
       .select()
@@ -58,10 +55,11 @@ router.post('/', authMiddleware, async (req, res) => {
       return res.status(500).json({ error: 'Failed to register cloud kitchen' });
     }
 
-    // 3. Update the owner user profile with the new kitchen_id
+    const updatedRoles = Array.from(new Set([...normalizeRoles(dbUser.role), 'buyer', 'seller']));
+
     const { error: updateError } = await supabase
       .from('users')
-      .update({ kitchen_id: newKitchen.id })
+      .update({ kitchen_id: newKitchen.id, role: updatedRoles })
       .eq('id', dbUser.id);
 
     if (updateError) {
@@ -72,7 +70,7 @@ router.post('/', authMiddleware, async (req, res) => {
     }
 
     res.status(201).json({
-      message: 'Cloud kitchen registered successfully',
+      message: 'Verification is in progress and you will be assigned a kitchen id soon.',
       kitchen: newKitchen
     });
 
@@ -83,7 +81,7 @@ router.post('/', authMiddleware, async (req, res) => {
 });
 
 // @route   GET /api/kitchens
-// @desc    Get all active cloud kitchens, including nested society details and dishes lists
+// @desc    Get all active and verified cloud kitchens
 // @access  Private
 router.get('/', authMiddleware, async (req, res) => {
   try {
@@ -94,7 +92,8 @@ router.get('/', authMiddleware, async (req, res) => {
         society:societies(*),
         dishes:dishes(*)
       `)
-      .eq('is_active', true);
+      .eq('is_active', true)
+      .eq('is_verified', true);
 
     if (error) {
       console.error('Error fetching cloud kitchens:', error.message);
@@ -110,13 +109,12 @@ router.get('/', authMiddleware, async (req, res) => {
 });
 
 // @route   GET /api/kitchens/:id
-// @desc    Get a specific cloud kitchen detail with nested society data and its active dishes list
+// @desc    Get a specific cloud kitchen detail, including verification state
 // @access  Private
 router.get('/:id', authMiddleware, async (req, res) => {
   try {
     const kitchenId = req.params.id;
 
-    // Fetch the cloud kitchen with nested society and its active dishes list
     const { data: kitchen, error } = await supabase
       .from('cloud_kitchens')
       .select(`
@@ -131,7 +129,6 @@ router.get('/:id', authMiddleware, async (req, res) => {
       return res.status(404).json({ error: 'Cloud kitchen not found' });
     }
 
-    // Filter active dishes
     const activeDishes = (kitchen.dishes || []).filter(dish => dish.is_available);
 
     res.status(200).json({
