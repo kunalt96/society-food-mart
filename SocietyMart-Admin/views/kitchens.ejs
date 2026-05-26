@@ -22,12 +22,11 @@
     <table class="table table-hover align-middle">
       <thead class="table-light">
         <tr>
-          <th scope="col" style="border-radius: 8px 0 0 8px;">KITCHEN / CHEF NAME</th>
-          <th scope="col">PHONE</th>
-          <th scope="col">EMAIL</th>
+          <th scope="col" style="border-radius: 8px 0 0 8px;">KITCHEN NAME</th>
+          <th scope="col">CHEF DETAILS</th>
           <th scope="col">SOCIETY</th>
-          <th scope="col">FLAT / VILLA</th>
-          <th scope="col" class="text-center" style="border-radius: 0 8px 8px 0; width: 120px;">ACTIONS</th>
+          <th scope="col">STATUS</th>
+          <th scope="col" class="text-center" style="border-radius: 0 8px 8px 0; width: 140px;">ACTIONS</th>
         </tr>
       </thead>
       <tbody>
@@ -36,37 +35,66 @@
             <tr>
               <td>
                 <div class="d-flex align-items-center gap-2">
-                  <div class="rounded bg-light p-2 text-center" style="width: 40px; height: 40px; color: #198754;">
+                  <div class="rounded bg-light p-2 text-center" style="width: 40px; height: 40px; color: #e75480;">
                     <i class="bi bi-egg-fried"></i>
                   </div>
                   <div>
-                    <div class="fw-bold text-dark"><%= kitchen.full_name %></div>
-                    <span class="text-muted small">Seller ID: <%= kitchen.id %></span>
+                    <div class="fw-bold text-dark"><%= kitchen.name %></div>
+                    <span class="text-muted small" style="font-size: 0.75rem;">Kitchen ID: <%= kitchen.id %></span>
                   </div>
                 </div>
               </td>
-              <td><a href="tel:<%= kitchen.phone %>" class="text-decoration-none text-muted small"><%= kitchen.phone %></a></td>
-              <td><span class="text-muted small"><%= kitchen.email || 'N/A' %></span></td>
+              <td>
+                <div class="fw-semibold text-dark"><%= kitchen.full_name %></div>
+                <div class="text-muted small">
+                  <i class="bi bi-telephone-fill me-1"></i><%= kitchen.phone %>
+                  <% if (kitchen.flat_number && kitchen.flat_number !== 'N/A') { %>
+                    <span class="mx-1">|</span><i class="bi bi-geo-alt-fill me-1"></i><%= kitchen.flat_number %>
+                  <% } %>
+                </div>
+              </td>
               <td>
                 <span class="badge badge-pink py-2 px-3 rounded-pill small">
                   <%= kitchen.societyName || 'N/A' %>
                 </span>
               </td>
-              <td><code><%= kitchen.flat_number || 'N/A' %></code></td>
+              <td>
+                <% if (kitchen.is_verified) { %>
+                  <span class="badge bg-success py-2 px-3 rounded-pill small">
+                    <i class="bi bi-patch-check-fill me-1"></i>Verified
+                  </span>
+                <% } else { %>
+                  <span class="badge bg-warning text-dark py-2 px-3 rounded-pill small">
+                    <i class="bi bi-clock-history me-1"></i>Pending
+                  </span>
+                <% } %>
+              </td>
               <td class="text-center">
-                <form action="/kitchens/delete/<%= kitchen.id %>" method="POST" onsubmit="return confirm('Are you sure you want to terminate this seller account? This will also remove all their active food listings!');">
-                  <button type="submit" class="btn btn-sm btn-outline-danger border-0 rounded-circle" style="width: 32px; height: 32px; padding: 0;">
-                    <i class="bi bi-trash3-fill"></i>
-                  </button>
-                </form>
+                <div class="d-flex justify-content-center align-items-center gap-2">
+                  <% if (!kitchen.is_verified) { %>
+                    <button type="button" onclick="verifyKitchen('<%= kitchen.id %>')" class="btn btn-sm btn-outline-success border-0 rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; padding: 0;" title="Verify Kitchen">
+                      <i class="bi bi-check-lg" style="font-size: 1.2rem;"></i>
+                    </button>
+                  <% } else { %>
+                    <button type="button" class="btn btn-sm btn-success border-0 rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; padding: 0; cursor: default;" title="Verified" disabled>
+                      <i class="bi bi-check-all" style="font-size: 1.2rem;"></i>
+                    </button>
+                  <% } %>
+                  
+                  <form action="/kitchens/delete/<%= kitchen.id %>" method="POST" class="m-0" onsubmit="return confirm('Are you sure you want to terminate this cloud kitchen? This will delete all its dishes, remove it from search, and revert the chef back to a buyer account.');">
+                    <button type="submit" class="btn btn-sm btn-outline-danger border-0 rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; padding: 0;" title="Delete Kitchen">
+                      <i class="bi bi-trash3-fill"></i>
+                    </button>
+                  </form>
+                </div>
               </td>
             </tr>
           <% }); %>
         <% } else { %>
           <tr>
-            <td colspan="6" class="text-center py-5 text-muted">
+            <td colspan="5" class="text-center py-5 text-muted">
               <i class="bi bi-egg-fried text-muted d-block fs-1 mb-2" style="opacity: 0.3;"></i>
-              No active seller kitchens registered.
+              No active cloud kitchens registered.
             </td>
           </tr>
         <% } %>
@@ -74,5 +102,32 @@
     </table>
   </div>
 </div>
+
+<script>
+  async function verifyKitchen(kitchenId) {
+    if (!confirm('Are you sure you want to verify this cloud kitchen? This will make it active and visible to buyers.')) {
+      return;
+    }
+    
+    try {
+      const response = await fetch(`/kitchens/verify/${kitchenId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      const result = await response.json();
+      if (response.ok && result.success) {
+        window.location.reload();
+      } else {
+        alert(result.error || 'Failed to verify kitchen.');
+      }
+    } catch (err) {
+      console.error('Error during kitchen verification:', err);
+      alert('An error occurred. Please try again.');
+    }
+  }
+</script>
 
 <%- include('partials/footer') %>

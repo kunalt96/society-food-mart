@@ -13,6 +13,7 @@ interface AuthState {
 
 interface AuthContextType extends AuthState {
   completeRegistration: (user: any) => void;
+  refreshUser: () => Promise<any>;
   logout: () => void;
 }
 
@@ -86,6 +87,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const refreshUser = async () => {
+    if (state.sessionToken) {
+      try {
+        const data = await syncWithBackend(state.sessionToken);
+        setState((prev) => ({
+          ...prev,
+          user: data.user || null,
+          isRegistrationComplete: !data.isNewUser,
+        }));
+        return data.user;
+      } catch (error) {
+        console.error('[AuthContext] refreshUser failed:', error);
+        throw error;
+      }
+    }
+    return null;
+  };
+
   const logout = async () => {
     // Notify the backend asynchronously (fire-and-forget) to keep the client responsive
     if (state.sessionToken) {
@@ -109,7 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ ...state, completeRegistration, logout }}>
+    <AuthContext.Provider value={{ ...state, completeRegistration, refreshUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

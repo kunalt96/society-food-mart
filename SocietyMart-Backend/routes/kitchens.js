@@ -145,4 +145,51 @@ router.get('/:id', authMiddleware, async (req, res) => {
   }
 });
 
+// @route   PATCH /api/kitchens/:id/status
+// @desc    Update cloud kitchen active state (owner only)
+// @access  Private
+router.patch('/:id/status', authMiddleware, async (req, res) => {
+  try {
+    const kitchenId = req.params.id;
+    const { isActive } = req.body;
+
+    if (typeof isActive !== 'boolean') {
+      return res.status(400).json({ error: 'isActive boolean is required' });
+    }
+
+    const { data: dbUser, error: userError } = await supabase
+      .from('users')
+      .select('id, kitchen_id')
+      .eq('phone', req.user.phone)
+      .single();
+
+    if (userError || !dbUser) {
+      return res.status(404).json({ error: 'User profile not found' });
+    }
+
+    if (!dbUser.kitchen_id || String(dbUser.kitchen_id) !== String(kitchenId)) {
+      return res.status(403).json({ error: 'Forbidden: You can update only your own kitchen' });
+    }
+
+    const { data: updatedKitchen, error: updateError } = await supabase
+      .from('cloud_kitchens')
+      .update({ is_active: isActive })
+      .eq('id', kitchenId)
+      .select('*')
+      .single();
+
+    if (updateError || !updatedKitchen) {
+      return res.status(500).json({ error: 'Failed to update kitchen status' });
+    }
+
+    return res.status(200).json({
+      message: `Kitchen is now ${isActive ? 'active' : 'inactive'}`,
+      kitchen: updatedKitchen,
+    });
+  } catch (err) {
+    console.error('Update Kitchen Status Server Error:', err);
+    return res.status(500).json({ error: 'Internal server error updating kitchen status' });
+  }
+});
+
 module.exports = router;
